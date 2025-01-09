@@ -31,6 +31,12 @@ jobs:
           - os: windows-latest
             arch: x86
             setup: x86
+          - os: macos-13
+            arch: x86_64
+            setup: x64
+          - os: macos-latest
+            arch: arm64
+            setup: arm64
           python:
           - setup: "3.9"
             cibw: cp39
