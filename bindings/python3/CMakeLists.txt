@@ -42,6 +42,7 @@ SET_TARGET_PROPERTIES (bindings_python3 PROPERTIES PREFIX "" SUFFIX "${PYTHON_EX
 IF (WIN32)
 TARGET_LINK_LIBRARIES (bindings_python3 libsolvext libsolv ${PYTHON_LIBRARY} ${SYSTEM_LIBRARIES})
 ELSEIF (APPLE)
+TARGET_LINK_OPTIONS (bindings_python3 PRIVATE -flat_namespace)
 TARGET_LINK_LIBRARIES (bindings_python3 libsolvext_static libsolv_static ${PYTHON_LIBRARY} ${SYSTEM_LIBRARIES})
 ELSE ()
 TARGET_LINK_LIBRARIES (bindings_python3 libsolvext_static libsolv_static ${SYSTEM_LIBRARIES})

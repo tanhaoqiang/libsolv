@@ -16,32 +16,12 @@ jobs:
       matrix:
         cfg:
         - platform:
-          - os: ubuntu-latest
+          - os: macos-13
             arch: x86_64
-            docker: linux/amd64
-          - os: ubuntu-latest
-            arch: i686
-            docker: linux/386
-          - os: ubuntu-latest
-            arch: aarch64
-            docker: linux/arm64/v8
-          - os: windows-latest
-            arch: AMD64
             setup: x64
-          - os: windows-latest
-            arch: x86
-            setup: x86
           python:
-          - setup: "3.9"
-            cibw: cp39
-          - setup: "3.10"
-            cibw: cp310
-          - setup: "3.11"
-            cibw: cp311
           - setup: "3.12"
             cibw: cp312
-          - setup: "3.13"
-            cibw: cp313
     runs-on: ubuntu-latest
 
     outputs:
@@ -97,6 +77,12 @@ jobs:
         name: wheel-${{ matrix.python.cibw }}-${{ runner.os }}-${{ matrix.platform.arch }}
         path: ./wheelhouse/*.whl
 
+    - if: runner.os == 'macOS'
+      run: find bindings/python3
+
+    - if: runner.os == 'macOS'
+      run: cat /Users/runner/work/libsolv/libsolv/_skbuild/macosx-10.13-x86_64-3.12/cmake-build/bindings/python3/solv_python.c
+
   test:
     needs:
     - matrix
@@ -129,8 +115,23 @@ jobs:
         python-version: ${{ matrix.python.setup }}
         architecture: ${{ matrix.platform.setup }}
 
+    - if: runner.os == 'macOS'
+      run: |
+        sysctl -n kern.coredump
+        sudo sysctl -w kern.coredump=1
+        sudo chmod -R +rwx /cores/
+
     - if: runner.os != 'Linux'
-      run: python .github/workflows/test.py
+      shell: bash
+      run: |
+        ulimit -c unlimited
+        python -m pip install dist/*.whl
+        PYTHONTRACEMALLOC=32 python .github/workflows/test.py
+      continue-on-error: true
+
+    - if: runner.os == 'macOS'
+      shell: bash
+      run: lldb -c $(ls -1 /cores/*) --one-line 'bt'
 
   release:
     needs:

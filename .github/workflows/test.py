@@ -1,6 +1,6 @@
-from glob import glob
-import pip
-pip.main(["install", glob("dist/*.whl")[0]])
+# from glob import glob
+# import pip
+# pip.main(["install", glob("dist/*.whl")[0]])
 import solv
 pool = solv.Pool()
 repo = pool.add_repo("repo")
