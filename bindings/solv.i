@@ -2208,29 +2208,29 @@ returnself(matchsolvable)
     return pool_id2langid($self, id, lang, create);
   }
   void setarch(const char *arch = 0) {
+    if (!arch) {
 %#ifdef _MSC_VER
-    SYSTEM_INFO info;
-    GetNativeSystemInfo(&info);
-    switch(info.wProcessorArchitecture) {
-    case PROCESSOR_ARCHITECTURE_INTEL: arch = "x86"; break;
-    case PROCESSOR_ARCHITECTURE_ARM: arch = "armhfp"; break;
-    case PROCESSOR_ARCHITECTURE_IA64: arch = "ia64"; break;
-    case PROCESSOR_ARCHITECTURE_AMD64: arch = "x86_64"; break;
-    case PROCESSOR_ARCHITECTURE_ARM64: arch = "aarch64"; break;
-    default:
+      SYSTEM_INFO info;
+      GetNativeSystemInfo(&info);
+      switch(info.wProcessorArchitecture) {
+      case PROCESSOR_ARCHITECTURE_INTEL: arch = "i686"; break;
+      case PROCESSOR_ARCHITECTURE_ARM: arch = "aarch32"; break;
+      case PROCESSOR_ARCHITECTURE_IA64: arch = "ia64"; break;
+      case PROCESSOR_ARCHITECTURE_AMD64: arch = "x86_64"; break;
+      case PROCESSOR_ARCHITECTURE_ARM64: arch = "aarch64"; break;
+      default:
         perror("uname");
         return;
-    }
+      }
 %#else
-    struct utsname un;
-    if (!arch) {
+      struct utsname un;
       if (uname(&un)) {
         perror("uname");
         return;
       }
       arch = un.machine;
-    }
 %#endif
+    }
     pool_setarch($self, arch);
   }
   Repo *add_repo(const char *name) {
