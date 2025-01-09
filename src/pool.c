@@ -464,8 +464,10 @@ pool_createwhatprovides(Pool *pool)
   if (pool->ss.stringhashmask || pool->relhashmask)
     POOL_DEBUG(SOLV_DEBUG_STATS, "string hash memory: %d K, rel hash memory : %d K\n", (pool->ss.stringhashmask + 1) / (int)(1024/sizeof(Id)), (pool->relhashmask + 1) / (int)(1024/sizeof(Id)));
 
+#ifndef _WIN32
   pool_freeidhashes(pool);	/* XXX: should not be here! */
   pool_freewhatprovides(pool);
+#endif
   num = pool->ss.nstrings;
   pool->whatprovides = whatprovides = solv_calloc_block(num, sizeof(Offset), WHATPROVIDES_BLOCK);
   pool->whatprovides_rel = solv_calloc_block(pool->nrels, sizeof(Offset), WHATPROVIDES_BLOCK);
