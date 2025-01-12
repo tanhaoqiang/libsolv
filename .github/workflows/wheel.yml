@@ -38,6 +38,12 @@ jobs:
             arch: arm64
             setup: arm64
           python:
+          - setup: "3.6"
+            cibw: cp36
+          - setup: "3.7"
+            cibw: cp37
+          - setup: "3.8"
+            cibw: cp38
           - setup: "3.9"
             cibw: cp39
           - setup: "3.10"
@@ -48,6 +54,14 @@ jobs:
             cibw: cp312
           - setup: "3.13"
             cibw: cp313
+          exclude:
+          - {platform: {os: macos-latest, arch: arm64, setup: arm64},
+             python: {setup: "3.6", cibw: cp36}}
+          - {platform: {os: macos-latest, arch: arm64, setup: arm64},
+             python: {setup: "3.7", cibw: cp37}}
+          - {platform: {os: macos-latest, arch: arm64, setup: arm64},
+             python: {setup: "3.8", cibw: cp38}}
+
     runs-on: ubuntu-latest
 
     outputs:
