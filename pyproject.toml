@@ -9,5 +9,9 @@ before-all = "brew install swig"
 before-all = "yum install -y make cmake swig"
 
 [[tool.cibuildwheel.overrides]]
-select = "*-musllinux*"
+select = "*-musllinux_*"
 before-all = "apk add make cmake swig"
+
+[[tool.cibuildwheel.overrides]]
+select = "*-manylinux_armv7l"
+before-all = "apt-get install -y make cmake swig"
