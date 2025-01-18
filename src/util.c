@@ -173,7 +173,7 @@ solv_sort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, con
 
 }
 
-#elif defined(HAVE_QSORT_R) /* not glibc, but has qsort_r() */
+#elif defined(HAVE_QSORT_R) && (!defined(__linux__)) /* not glibc, but has qsort_r() */ // musl libc does not work with this
 
 struct solv_sort_data {
   int (*compar)(const void *, const void *, void *);

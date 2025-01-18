@@ -19,18 +19,43 @@ jobs:
           - os: ubuntu-latest
             arch: x86_64
             docker: linux/amd64
+            build: "manylinux_"
           - os: ubuntu-latest
             arch: i686
             docker: linux/386
+            build: "manylinux_"
           - os: ubuntu-latest
             arch: aarch64
             docker: linux/arm64/v8
+            build: "manylinux_"
           - os: ubuntu-latest
             arch: s390x
             docker: linux/s390x
+            build: "manylinux_"
           - os: ubuntu-latest
             arch: ppc64le
             docker: linux/ppc64le
+            build: "manylinux_"
+          - os: ubuntu-latest
+            arch: x86_64
+            docker: linux/amd64
+            build: "musllinux_"
+          - os: ubuntu-latest
+            arch: i686
+            docker: linux/386
+            build: "musllinux_"
+          - os: ubuntu-latest
+            arch: aarch64
+            docker: linux/arm64/v8
+            build: "musllinux_"
+          - os: ubuntu-latest
+            arch: s390x
+            docker: linux/s390x
+            build: "musllinux_"
+          - os: ubuntu-latest
+            arch: ppc64le
+            docker: linux/ppc64le
+            build: "musllinux_"
           - os: windows-latest
             arch: AMD64
             setup: x64
@@ -87,6 +112,7 @@ jobs:
     needs:
     - matrix
     strategy:
+      fail-fast: false
       matrix: ${{ fromJson(needs.matrix.outputs.matrix) }}
     runs-on: ${{ matrix.platform.os }}
 
@@ -123,16 +149,12 @@ jobs:
       run: python -m cibuildwheel --output-dir wheelhouse
       env:
         CIBW_ARCHS: "${{ matrix.platform.arch }}"
-        CIBW_BUILD: "${{ matrix.python.cibw }}-*"
-        CIBW_SKIP: "*-musllinux_*"
-        CIBW_BEFORE_ALL_MACOS: brew install swig
-        CIBW_BEFORE_ALL_LINUX: yum install -y make cmake swig
-        CIBW_BEFORE_BUILD: python -m pip install scikit-build
+        CIBW_BUILD: "${{ matrix.python.cibw }}-${{ matrix.platform.build }}*"
         CIBW_BUILD_VERBOSITY: 1
 
     - uses: actions/upload-artifact@v4
       with:
-        name: wheel-${{ matrix.python.cibw }}-${{ runner.os }}-${{ matrix.platform.arch }}
+        name: wheel-${{ matrix.python.cibw }}-${{ runner.os }}-${{ matrix.platform.arch }}-${{ matrix.platform.build }}
         path: ./wheelhouse/*.whl
 
   test:
@@ -140,6 +162,7 @@ jobs:
     - matrix
     - build
     strategy:
+      fail-fast: false
       matrix: ${{ fromJson(needs.matrix.outputs.matrix) }}
     runs-on: ${{ matrix.platform.os }}
 
@@ -148,7 +171,7 @@ jobs:
 
     - uses: actions/download-artifact@v4
       with:
-        name: wheel-${{ matrix.python.cibw }}-${{ runner.os }}-${{ matrix.platform.arch }}
+        name: wheel-${{ matrix.python.cibw }}-${{ runner.os }}-${{ matrix.platform.arch }}-${{ matrix.platform.build }}
         path: dist
 
     - name: Set up QEMU
@@ -170,7 +193,10 @@ jobs:
         platforms: ppc64le
 
     - run: docker run -v "${{ github.workspace }}:/workspace" -w /workspace --platform "${{ matrix.platform.docker }}" "python:${{ matrix.python.setup }}" python3 .github/workflows/test.py
-      if: runner.os == 'Linux'
+      if: ${{ runner.os == 'Linux' && matrix.platform.build == 'manylinux_' }}
+
+    - run: docker run -v "${{ github.workspace }}:/workspace" -w /workspace --platform "${{ matrix.platform.docker }}" "python:${{ matrix.python.setup }}-alpine" python3 .github/workflows/test.py
+      if: ${{ runner.os == 'Linux' && matrix.platform.build == 'musllinux_' }}
 
     - name: Set up Python
       uses: actions/setup-python@v5

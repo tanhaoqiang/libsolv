@@ -1,3 +1,13 @@
 [build-system]
 requires = ["setuptools", "wheel", "scikit-build"]
 build-backend = "setuptools.build_meta"
+
+[tool.cibuildwheel.macos]
+before-all = "brew install swig"
+
+[tool.cibuildwheel.linux]
+before-all = "yum install -y make cmake swig"
+
+[[tool.cibuildwheel.overrides]]
+select = "*-musllinux*"
+before-all = "apk add make cmake swig"
