@@ -25,6 +25,12 @@ jobs:
           - os: ubuntu-latest
             arch: aarch64
             docker: linux/arm64/v8
+          - os: ubuntu-latest
+            arch: s390x
+            docker: linux/s390x
+          - os: ubuntu-latest
+            arch: ppc64le
+            docker: linux/ppc64le
           - os: windows-latest
             arch: AMD64
             setup: x64
@@ -93,6 +99,18 @@ jobs:
       with:
         platforms: arm64
 
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+      if: ${{ matrix.platform.arch == 's390x' }}
+      with:
+        platforms: s390x
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+      if: ${{ matrix.platform.arch == 'ppc64le' }}
+      with:
+        platforms: ppc64le
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -138,6 +156,18 @@ jobs:
       if: ${{ matrix.platform.arch == 'aarch64' }}
       with:
         platforms: arm64
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+      if: ${{ matrix.platform.arch == 's390x' }}
+      with:
+        platforms: s390x
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+      if: ${{ matrix.platform.arch == 'ppc64le' }}
+      with:
+        platforms: ppc64le
 
     - run: docker run -v "${{ github.workspace }}:/workspace" -w /workspace --platform "${{ matrix.platform.docker }}" "python:${{ matrix.python.setup }}" python3 .github/workflows/test.py
       if: runner.os == 'Linux'
